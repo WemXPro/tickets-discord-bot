@@ -32,6 +32,10 @@ client.on('messageCreate', message => {
     // Function to check if channel topic is valid JSON
     function isTicket(channel) {
         const topic = channel.topic;
+        
+        if(!message.hasOwnProperty('content')) {
+            return false;
+        }
 
         if (!topic) {
             return false;
@@ -44,14 +48,27 @@ client.on('messageCreate', message => {
                 if(message?.author.bot) {
                     return false;
                 }
+                let content = message.content;
+
+                // Checking if the message has attachments
+                if (message.attachments.size > 0) {
+                    // Go through all attachments
+                    message.attachments.forEach(attachment => {
+                        // Check if the attachment is an image
+                        if (attachment.contentType && attachment.contentType.includes('image')) {
+                            // Add the image URL to the content
+                            content += ' \n' + attachment.url;
+                        }
+                    });
+                }
+
                 const api_url_create = APP_URL + '/api/v1/tickets/'+ parsedTopic.ticket_id + '/discord-message';
                 const data = {
                     author: message.author.username,
                     avatar_url: message.author.displayAvatarURL(),
-                    message: message.content
+                    message: content
                 };
-
-                const response =  axios.post(api_url_create, data);
+                axios.post(api_url_create, data);
             }
 
         } catch (error) {
