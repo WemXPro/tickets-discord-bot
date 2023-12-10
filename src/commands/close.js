@@ -30,7 +30,7 @@ module.exports = {
         try {
             await axios.get(api_url_close, {
                 headers: {
-                    'Authorization': `Bearer ${API_KEY}`
+                    'Authorization': `Bearer ${config.API_KEY}`
                 }
             });
             await interaction.reply('Ticket closed successfully.');
