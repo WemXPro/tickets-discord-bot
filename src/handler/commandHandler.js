@@ -3,6 +3,7 @@ const { Routes } = require('discord-api-types/v9');
 const fs = require('fs');
 const path = require('path');
 const config = require('../config');
+const color = require('../colors');
 
 module.exports = (client) => {
     client.commands = new Map();
@@ -19,12 +20,12 @@ module.exports = (client) => {
 
     client.once('ready', async () => {
         try {
-            console.log('Started refreshing application (/) commands.');
+            console.log(color.yellow('Started refreshing application (/) commands.'));
             await rest.put(
                 Routes.applicationGuildCommands(client.user.id, client.guilds.cache.first().id),
                 { body: commands },
             );
-            console.log('Successfully reloaded application (/) commands.');
+            console.log(color.green('Successfully reloaded application (/) commands.'));
         } catch (error) {
             console.error(error);
         }

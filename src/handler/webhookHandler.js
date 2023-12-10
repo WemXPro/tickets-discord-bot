@@ -1,8 +1,7 @@
 const { ChannelType } = require('discord.js');
+const color = require('../colors');
 
 const webhookHandler = (client, config) => async (req, res) => {
-    // console.log('Webhook received:', req.body);
-    
     const channelName = 'ticket-' + req.body.user.username;
     if (!channelName) {
         return res.status(400).send('Channel name not provided in webhook data');
@@ -33,14 +32,14 @@ const webhookHandler = (client, config) => async (req, res) => {
             ],
         });
 
-        console.log(`Created new private channel: ${channel.name}`);
+        console.log(color.green(`Created new private channel: ${channel.name}`));
     
         const webhook = await channel.createWebhook({
             name: 'WemX-Webhook',
         });
     
         const webhookUrl = `https://discord.com/api/webhooks/${webhook.id}/${webhook.token}`;
-        console.log(`Webhook URL: ${webhookUrl}`);
+        console.log(color.green(`Webhook URL: ${webhookUrl}`));
     
         res.status(200).json({ webhookUrl: webhookUrl });
 
