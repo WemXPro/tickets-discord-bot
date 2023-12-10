@@ -1,12 +1,11 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
-const config = require('../config');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('close')
         .setDescription('Closes this ticket'),
-    async execute(interaction) {
+    async execute(interaction, config) {
         if (!interaction.channel || !interaction.channel.topic) {
             await interaction.reply('This channel does not have a topic, so it cannot be a ticket.');
             return;

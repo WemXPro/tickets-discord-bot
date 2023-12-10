@@ -1,9 +1,8 @@
 const axios = require('axios');
-const config = require('../config');
 
 module.exports = {
     name: 'messageCreate',
-    async execute(message) {
+    async execute(message, config) {
         if (message.author.bot) return;
         const channel = message.channel;
 

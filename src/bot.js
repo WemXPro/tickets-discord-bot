@@ -10,8 +10,8 @@ const config = require('./config');
 const app = express();
 const client = new Client({ intents: config.intents });
 
-commandHandler(client);
-eventHandler(client);
+commandHandler(client, config);
+eventHandler(client, config);
 
 client.login(config.botToken);
 

@@ -6,7 +6,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('stop')
         .setDescription('Stops the bot'),
-    async execute(interaction) {
+    async execute(interaction, config) {
         // Check if the user has admin rights
         // if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
         //     return interaction.reply('You do not have permission to stop the bot.');

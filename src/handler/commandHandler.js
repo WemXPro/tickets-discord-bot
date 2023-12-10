@@ -2,10 +2,9 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const fs = require('fs');
 const path = require('path');
-const config = require('../config');
 const color = require('../colors');
 
-module.exports = (client) => {
+module.exports = (client, config) => {
     client.commands = new Map();
 
     const rest = new REST({ version: '9' }).setToken(config.botToken);
@@ -38,7 +37,7 @@ module.exports = (client) => {
         if (!command) return;
 
         try {
-            await command.execute(interaction);
+            await command.execute(interaction, config);
         } catch (error) {
             console.error(error);
             await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
