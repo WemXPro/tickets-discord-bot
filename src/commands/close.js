@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const axios = require('axios'); // Додавання axios
+const axios = require('axios');
 const config = require('../config');
 
 module.exports = {
