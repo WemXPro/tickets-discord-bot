@@ -1,7 +1,7 @@
 const { ChannelType } = require('discord.js');
 
 const webhookHandler = (client, config) => async (req, res) => {
-    console.log('Webhook received:', req.body);
+    // console.log('Webhook received:', req.body);
     
     const channelName = 'ticket-' + req.body.user.username;
     if (!channelName) {
