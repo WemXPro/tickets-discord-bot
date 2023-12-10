@@ -13,7 +13,7 @@ module.exports = {
     ],
     headers: {
         headers: {
-            'Authorization': `Bearer ${config.API_KEY}`
+            'Authorization': `Bearer ${process.env.API_KEY}`
         }
     }
 };
