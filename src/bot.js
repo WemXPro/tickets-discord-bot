@@ -50,6 +50,12 @@ client.on('messageCreate', message => {
                 }
                 let content = message.content;
 
+                const regex = /<@!?(\d+)>/g;
+                content = content.replace(regex, (match, userId) => {
+                    const user = client.users.cache.get(userId);
+                    return user ? `@${user.username}` : match;
+                });
+
                 // Checking if the message has attachments
                 if (message.attachments.size > 0) {
                     // Go through all attachments
