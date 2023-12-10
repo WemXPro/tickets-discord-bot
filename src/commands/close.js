@@ -28,11 +28,7 @@ module.exports = {
         const api_url_close = `${config.APP_URL}/api/v1/tickets/${parsedTopic.ticket_id}/close-or-open`;
 
         try {
-            await axios.get(api_url_close, {
-                headers: {
-                    'Authorization': `Bearer ${config.API_KEY}`
-                }
-            });
+            await axios.get(api_url_close, config.headers);
             await interaction.reply('Ticket closed successfully.');
         } catch (error) {
             console.error('Error when closing the ticket:', error);

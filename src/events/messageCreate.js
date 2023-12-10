@@ -44,11 +44,7 @@ module.exports = {
 
         // Sending data to the API
         try {
-            await axios.post(`${config.APP_URL}/api/v1/tickets/${parsedTopic.ticket_id}/discord-message`, data, {
-                headers: {
-                    'Authorization': `Bearer ${config.API_KEY}`
-                }
-            });
+            await axios.post(`${config.APP_URL}/api/v1/tickets/${parsedTopic.ticket_id}/discord-message`, data, config.headers);
         } catch (error) {
             console.error('Error posting message to API:', error);
         }

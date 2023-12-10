@@ -10,5 +10,10 @@ module.exports = {
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent
-    ]
+    ],
+    headers: {
+        headers: {
+            'Authorization': `Bearer ${config.API_KEY}`
+        }
+    }
 };
