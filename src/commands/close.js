@@ -4,7 +4,8 @@ const axios = require('axios');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('close')
-        .setDescription('Closes this ticket'),
+        .setDescription('Closes this ticket')
+        .setDefaultMemberPermissions(8),
     async execute(interaction, config) {
         if (!interaction.channel || !interaction.channel.topic) {
             await interaction.reply('This channel is not a ticket.');

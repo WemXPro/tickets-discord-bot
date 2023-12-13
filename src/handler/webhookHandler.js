@@ -19,7 +19,7 @@ const webhookHandler = (client, config) => async (req, res) => {
     }
 
     const channelName = 'ticket-' + req.body.user.username;    
-    const guild = client.guilds.cache.first();
+    const guild = client.guilds.cache.get(config.DISCORD_SERVER);
     if (!guild) {
         return res.status(500).send('Guild not found');
     }

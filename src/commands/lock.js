@@ -4,7 +4,8 @@ const axios = require('axios');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('lock')
-        .setDescription('The ticket will be locked and channel will be deleted'),
+        .setDescription('The ticket will be locked and channel will be deleted')
+        .setDefaultMemberPermissions(8),
     async execute(interaction, config) {
 
         if (!interaction.channel || !interaction.channel.topic) {
