@@ -19,5 +19,5 @@ app.use(express.json());
 app.post('/webhook', webhookHandler(client, config));
 
 app.listen(config.port, () => {
-    console.log(color.green(`Server is listening on ${config.APP_URL}:${config.port}`));
+    console.log(color.green(`Server is listening on 127.0.0.1:${config.port}`));
 });

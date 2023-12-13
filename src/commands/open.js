@@ -3,8 +3,8 @@ const axios = require('axios');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('close')
-        .setDescription('Closes this ticket'),
+        .setName('reopen')
+        .setDescription('Open this ticket'),
     async execute(interaction, config) {
         if (!interaction.channel || !interaction.channel.topic) {
             await interaction.reply('This channel is not a ticket.');
@@ -25,14 +25,14 @@ module.exports = {
             return;
         }
 
-        const api_url_close = `${config.APP_URL}/api/v1/tickets/${parsedTopic.ticket_id}/close`;
+        const api_url = `${config.APP_URL}/api/v1/tickets/${parsedTopic.ticket_id}/reopen`;
 
         try {
-            await axios.get(api_url_close, config.headers);
-            await interaction.reply('Ticket closed successfully.');
+            await axios.get(api_url, config.headers);
+            await interaction.reply('Ticket opened successfully.');
         } catch (error) {
-            console.error('Error when closing the ticket:', error);
-            await interaction.reply('An error occurred when closing the ticket.');
+            console.error('Error when opening the ticket:', error);
+            await interaction.reply('An error occurred when opening the ticket.');
         }
     }
 };

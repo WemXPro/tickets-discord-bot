@@ -2,11 +2,23 @@ const { ChannelType } = require('discord.js');
 const color = require('../colors');
 
 const webhookHandler = (client, config) => async (req, res) => {
-    const channelName = 'ticket-' + req.body.user.username;
-    if (!channelName) {
-        return res.status(400).send('Channel name not provided in webhook data');
+
+    // Check if config.WEBHOOK_SECRET is provided
+    if (!config.WEBHOOK_SECRET) {
+        console.error('WEBHOOK_SECRET is not set in the configuration.');
+        return res.status(500).send('Server configuration error');
     }
-    
+
+    // check webhook secret
+    if (req.headers['webhook_secret'] !== config.WEBHOOK_SECRET) {
+        return res.status(401).send('Invalid webhook secret');
+    }
+
+    if (!req.body.user) {
+        return res.status(400).send('Invalid data load');
+    }
+
+    const channelName = 'ticket-' + req.body.user.username;    
     const guild = client.guilds.cache.first();
     if (!guild) {
         return res.status(500).send('Guild not found');
@@ -24,6 +36,7 @@ const webhookHandler = (client, config) => async (req, res) => {
             name: channelName,
             topic: topicString,
             type: ChannelType.GuildText,
+            parent: config.TICKETS_CHANNEL, // Set the parent to the category ID
             permissionOverwrites: [
                 {
                     id: guild.roles.everyone.id,
