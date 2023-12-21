@@ -15,9 +15,9 @@ const webhookHandler = (client) => async (req, res) => {
     if (!Tenant) {
         return res.status(400).send('Discord server is not synced with any domain');
     }
-
-    if (Tenant.api_key == req.body.api_key) {
-        return res.status(400).send('Discord server is not synced with any domain');
+    
+    if (Tenant.api_key !== req.body.api_key) {
+        return res.status(400).send('API Key Mismatch, make sure you are using the correct API Key');
     }
 
     if (!req.body.user) {
