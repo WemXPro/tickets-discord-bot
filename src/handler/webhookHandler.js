@@ -1,17 +1,23 @@
 const { ChannelType } = require('discord.js');
 const color = require('../colors');
+const Link = require('../models/link');
 
-const webhookHandler = (client, config) => async (req, res) => {
+const webhookHandler = (client) => async (req, res) => {
 
-    // Check if config.WEBHOOK_SECRET is provided
-    if (!config.WEBHOOK_SECRET) {
-        console.error('WEBHOOK_SECRET is not set in the configuration.');
-        return res.status(500).send('Server configuration error');
+    if (!req.body.discord_server) {
+        return res.status(400).send('Discord Server ID was not passed');
     }
 
-    // check webhook secret
-    if (req.headers['webhook_secret'] !== config.WEBHOOK_SECRET) {
-        return res.status(401).send('Invalid webhook secret');
+    const Tenant = await Link.findOne({
+        where: { discord_server_id: req.body.discord_server }
+    });
+
+    if (!Tenant) {
+        return res.status(400).send('Discord server is not synced with any domain');
+    }
+
+    if (Tenant.api_key == req.body.api_key) {
+        return res.status(400).send('Discord server is not synced with any domain');
     }
 
     if (!req.body.user) {
@@ -19,7 +25,7 @@ const webhookHandler = (client, config) => async (req, res) => {
     }
 
     const channelName = 'ticket-' + req.body.user.username;    
-    const guild = client.guilds.cache.get(config.DISCORD_SERVER);
+    const guild = client.guilds.cache.get(req.body.discord_server);
     if (!guild) {
         return res.status(500).send('Guild not found');
     }
@@ -28,22 +34,29 @@ const webhookHandler = (client, config) => async (req, res) => {
         let topic = {
             ticket_id: req.body.id,
             department: req.body.department.name,
-            url: config.APP_URL + '/tickets/' + req.body.id,
+            url: Tenant.protocol + Tenant.domain + '/tickets/' + req.body.id,
         };
         let topicString = JSON.stringify(topic);
 
-        const channel = await guild.channels.create({
+        const channelOptions = {
             name: channelName,
             topic: topicString,
             type: ChannelType.GuildText,
-            parent: config.TICKETS_CHANNEL, // Set the parent to the category ID
             permissionOverwrites: [
                 {
                     id: guild.roles.everyone.id,
                     deny: ['ViewChannel'],
                 },
             ],
-        });
+        };
+        
+        // Check if the discord_channel variable exists and has a value
+        if (req.body.discord_channel) {
+            channelOptions.parent = req.body.discord_channel; // Set the parent to the category ID only if it exists
+        }
+        
+        // Create the channel with the specified options
+        const channel = await guild.channels.create(channelOptions);        
 
         console.log(color.green(`Created new private channel: ${channel.name}`));
     

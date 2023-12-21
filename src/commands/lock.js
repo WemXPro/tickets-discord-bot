@@ -1,12 +1,22 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const axios = require('axios');
+const Link = require('../models/link');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('lock')
         .setDescription('The ticket will be locked and channel will be deleted')
         .setDefaultMemberPermissions(8),
-    async execute(interaction, config) {
+    async execute(interaction) {
+
+        const Tenant = await Link.findOne({
+            where: { discord_server_id: interaction.guild.id }
+        });
+
+        if (!Tenant) {
+            await interaction.reply('This server is not syncronized with any domain.');
+            return;
+        };
 
         if (!interaction.channel || !interaction.channel.topic) {
             await interaction.reply('This channel is not a ticket.');
@@ -27,10 +37,14 @@ module.exports = {
             return;
         }
 
-        const api_url = `${config.APP_URL}/api/v1/tickets/${parsedTopic.ticket_id}/lock`;
+        const api_url = `${Tenant.protocol + Tenant.domain}/api/v1/tickets/${parsedTopic.ticket_id}/lock`;
 
         try {
-            await axios.get(api_url, config.headers);
+            await axios.get(api_url, {
+                headers: {
+                    'Authorization': `Bearer ${Tenant.api_key}`
+                }
+            });
             await interaction.reply('Ticket was locked successfully, this channel wil be deleted in 5 seconds');
 
             // Delete the channel after a short delay

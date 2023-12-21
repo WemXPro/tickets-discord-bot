@@ -6,6 +6,7 @@ const webhookHandler = require('./handler/webhookHandler');
 const commandHandler = require('./handler/commandHandler');
 const eventHandler = require('./handler/eventHandler');
 const config = require('./config');
+const sequelize = require('./database');
 
 const app = express();
 const client = new Client({ intents: config.intents });
@@ -16,6 +17,12 @@ eventHandler(client, config);
 client.login(config.botToken);
 
 app.use(express.json());
+
+sequelize.authenticate()
+  .then(() => {
+    console.log(color.green('Connected to database successfully'));
+});
+
 app.post('/webhook', webhookHandler(client, config));
 
 app.listen(config.port, () => {

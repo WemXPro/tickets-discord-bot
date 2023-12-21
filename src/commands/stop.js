@@ -7,7 +7,7 @@ module.exports = {
         .setName('stop')
         .setDescription('Stops the bot')
         .setDefaultMemberPermissions(8),
-    async execute(interaction, config) {
+    async execute(interaction) {
         await interaction.reply('Stopping the bot...');
         console.log(color.red('The stop bot command was executed'))
         process.exit();

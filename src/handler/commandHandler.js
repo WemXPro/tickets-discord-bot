@@ -21,7 +21,7 @@ module.exports = (client, config) => {
         try {
             console.log(color.yellow('Started refreshing application (/) commands.'));
             await rest.put(
-                Routes.applicationGuildCommands(client.user.id, client.guilds.cache.first().id),
+                Routes.applicationCommands(client.user.id),
                 { body: commands },
             );
             console.log(color.green('Successfully reloaded application (/) commands.'));
@@ -29,6 +29,7 @@ module.exports = (client, config) => {
             console.error(error);
         }
     });
+    
 
     client.on('interactionCreate', async interaction => {
         if (!interaction.isCommand()) return;
