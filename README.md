@@ -9,7 +9,8 @@ You can self host the ticket bot for branding purposes, to do so you are require
 3. Copy ".env.example" to ".env" and set all the values
 4. Run the bot using `sh run.sh` and make sure its starts successfully
 5. In your tickets module edit file `Tickets/Jobs/TicketCreateWebhook.php`
-Replace UR
+
+Replace URL
 ```
  http://beta.wemx.net:3000/webhook
 ```
