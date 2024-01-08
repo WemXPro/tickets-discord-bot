@@ -18,3 +18,15 @@ With
 ```
 http://your-servers-ip:3000/webhook
 ```
+
+# Database
+
+Self hosting requires you to setup your own database to store the synced servers inside.
+
+Create a new database for example "tickets" with a table called "servers" with the following columns:
+The table has to have the following values
+- discord_server_id (string)
+- protocol Enum: https://, http://
+- domain: (string)
+- api_key (string)
+- createdAt (timestamp)
