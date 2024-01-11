@@ -1,9 +1,78 @@
-const {PermissionsBitField, ChannelType, EmbedBuilder} = require('discord.js');
+const { PermissionsBitField, ChannelType, EmbedBuilder } = require('discord.js');
 const Link = require("../models/link");
 const axios = require("axios");
 
+async function getDepartmentData(apiUrl, apiKey, selectedValue) {
+    const response = await axios.get(apiUrl, {
+        headers: {
+            'Authorization': `Bearer ${apiKey}`
+        }
+    });
+    return response.data.data.find(dept => dept.id === Number(selectedValue));
+}
+
+async function createCategory(guild, categoryName) {
+    let category = guild.channels.cache.find(c => c.name === categoryName && c.type === ChannelType.GuildCategory);
+    if (!category) {
+        category = await guild.channels.create({name: categoryName, type: ChannelType.GuildCategory });
+    }
+    return category;
+}
+
+async function createTicket(guild, category, channelName, member, description) {
+    let ticketChannel = guild.channels.cache.find(c => c.name === channelName && c.parentId === category.id);
+    if (!ticketChannel) {
+        ticketChannel = await guild.channels.create({
+            name: channelName,
+            type: ChannelType.GuildText,
+            parent: category.id,
+            permissionOverwrites: [
+                {
+                    id: guild.id,
+                    deny: [PermissionsBitField.Flags.ViewChannel],
+                },
+                {
+                    id: member.id,
+                    allow: [PermissionsBitField.Flags.ViewChannel],
+                },
+                {
+                    id: guild.roles.everyone.id,
+                    deny: [PermissionsBitField.Flags.ViewChannel],
+                },
+                {
+                    id: guild.roles.cache.find(role => role.permissions.has(PermissionsBitField.Flags.Administrator)).id,
+                    allow: [PermissionsBitField.Flags.ViewChannel],
+                },
+            ],
+        });
+
+        let embed = new EmbedBuilder()
+            .setColor(0x0099FF)
+            .setTitle(`Ticket for ${member.user.username}`)
+            .setDescription(description)
+            .setTimestamp();
+
+        await ticketChannel.send({
+            content: `${member.toString()}, your ticket has been created.`,
+            embeds: [embed]
+        });
+    } else {
+        await ticketChannel.send(`${member.toString()}, you already have an open ticket.`);
+    }
+
+    return ticketChannel;
+}
+
+function htmlToMarkdown(html) {
+    return html
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/?strong>/gi, '**')
+        .replace(/<\/?em>/gi, '*')
+        .replace(/<[^>]+>/g, '');
+}
+
 module.exports = {
-    customId: 'select_ticket_type',
+    customId: 'select_ticket_type', // Submit id required in openTicketForm.js
     execute: async (interaction) => {
         const selectedValue = interaction.values[0];
         const guild = interaction.guild;
@@ -14,105 +83,30 @@ module.exports = {
         });
 
         if (!Tenant) {
-            await interaction.reply('This server is not syncronized with any domain.');
+            await interaction.reply({ content: 'This server is not synchronized with any domain.', ephemeral: true });
             return;
         }
+
         const api_url_department = `${Tenant.protocol + Tenant.domain}/api/v1/tickets/departments`;
 
         try {
-            const response = await axios.get(api_url_department, {
-                headers: {
-                    'Authorization': `Bearer ${Tenant.api_key}`
-                }
-            });
+            const department = await getDepartmentData(api_url_department, Tenant.api_key, selectedValue);
 
-            const department = response.data.data.find(dept => dept.id === Number(selectedValue));
             if (department) {
                 const categoryName = "tickets-" + department.name;
-                const channelName = `ticket-${member.user.username}`;
+                const category = await createCategory(guild, categoryName);
+                const description = department.auto_response_template
+                    ? htmlToMarkdown(department.auto_response_template)
+                    : department.description;
+                const ticketChannel = await createTicket(guild, category, `ticket-${member.user.username}`, member, description);
 
-                // Checking the presence of a category
-                let category = guild.channels.cache.find(c => c.name === categoryName && c.type === ChannelType.GuildCategory);
-                if (!category) {
-                    category = await guild.channels.create({
-                            name: categoryName,
-                            type: ChannelType.GuildCategory
-                        }
-                    );
-                }
-
-                // Checking the existence of a ticket
-                let ticketChannel = guild.channels.cache.find(c => c.name === channelName && c.parentId === category.id);
-                if (ticketChannel) {
-                    // The ticket already exists, send a ping to this channel
-                    ticketChannel.send(`${member.toString()}, you already have an open ticket.`);
-
-                    await interaction.update({
-                        components: [] // Remove all components
-                    });
-                } else {
-                    const ticketChannel = await guild.channels.create({
-                        name: channelName,
-                        type: ChannelType.GuildText,
-                        parent: category.id,
-                        permissionOverwrites: [
-                            {
-                                id: guild.id,
-                                deny: [PermissionsBitField.Flags.ViewChannel],
-                            },
-                            {
-                                id: member.id,
-                                allow: [PermissionsBitField.Flags.ViewChannel],
-                            },
-                            {
-                                id: guild.roles.everyone.id,
-                                deny: [PermissionsBitField.Flags.ViewChannel],
-                            },
-                            {
-                                id: guild.roles.cache.find(role => role.permissions.has(PermissionsBitField.Flags.Administrator)).id,
-                                allow: [PermissionsBitField.Flags.ViewChannel],
-                            },
-                        ],
-                    });
-
-                    const description = department.auto_response_template
-                        ? htmlToMarkdown(department.auto_response_template)
-                        : department.description;
-
-                    let embed = new EmbedBuilder()
-                        .setColor(0x0099FF)
-                        .setTitle(department.name)
-                        .setDescription(description)
-                        .setTimestamp();
-
-                    // Sending a message to the created channel and pinging the user
-                    ticketChannel.send({
-                        content: `${member.toString()}, your ticket has been created.`,
-                        embeds: [embed]
-                    });
-
-                    await interaction.update({
-                        components: [] // Remove all components
-                    });
-                }
+                await interaction.reply({ content: `Your ticket has been created: ${ticketChannel}`, ephemeral: true });
             } else {
-                console.error("No department with this ID was found.");
+                await interaction.reply({ content: "No department with this ID was found.", ephemeral: true });
             }
         } catch (error) {
-            console.error('Error get department:', error);
-            await interaction.reply('Error get department');
+            console.error('Error getting department:', error);
+            await interaction.reply({ content: 'Error getting department.', ephemeral: true });
         }
-
-
-
     }
 };
-
-
-function htmlToMarkdown(html) {
-    return html
-        .replace(/<br\s*\/?>/gi, '\n') // Replacing <br> with a new line
-        .replace(/<\/?strong>/gi, '**') // Replace <strong> with bold text
-        .replace(/<\/?em>/gi, '*') // Replace <em> with italics
-        .replace(/<[^>]+>/g, ''); // Remove all other HTML tags
-}

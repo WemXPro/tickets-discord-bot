@@ -33,7 +33,7 @@ module.exports = {
 
             const row = new ActionRowBuilder()
                 .addComponents(new StringSelectMenuBuilder()
-                    .setCustomId('select_ticket_type')
+                    .setCustomId('select_ticket_type') // Target submit id
                     .setPlaceholder('Select Ticket Department')
                     .addOptions(departmentOptions));
 
