@@ -93,7 +93,7 @@ module.exports = {
             const department = await getDepartmentData(api_url_department, Tenant.api_key, selectedValue);
 
             if (department) {
-                const categoryName = "tickets-" + department.name;
+                const categoryName = "tickets-" + department.name.replace(/\s+/g, '-').toLowerCase();
                 const category = await createCategory(guild, categoryName);
                 const description = department.auto_response_template
                     ? htmlToMarkdown(department.auto_response_template)
