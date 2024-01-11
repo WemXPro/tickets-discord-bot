@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder} = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -10,10 +10,16 @@ module.exports = {
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('create_ticket') // Form/Select id
-                    .setLabel('Create Ticket')
-                    .setStyle(ButtonStyle.Primary)
+                    .setLabel('🎫 Create Ticket')
+                    .setStyle(ButtonStyle.Secondary)
             );
 
-        await interaction.reply({ content: 'Click the button to create a ticket', components: [row] });
+        const embed = new EmbedBuilder()
+            .setColor(0x0099FF)
+            .setTitle('Support Ticket')
+            .setDescription('Click the button below to create a new support ticket.')
+            .setTimestamp();
+
+        await interaction.reply({ embeds: [embed], components: [row] });
     }
 };
