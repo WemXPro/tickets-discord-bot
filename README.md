@@ -25,8 +25,10 @@ Self hosting requires you to setup your own database to store the synced servers
 
 Create a new database for example "tickets" with a table called "servers" with the following columns:
 The table has to have the following values
+- id (int AI)
 - discord_server_id (string)
 - protocol Enum: https://, http://
 - domain: (string)
 - api_key (string)
+- updatedAt (timestamp)
 - createdAt (timestamp)
