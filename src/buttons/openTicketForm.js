@@ -9,6 +9,7 @@ module.exports = {
                 .setCustomId('select_ticket_type') // Submit handler id
                 .setPlaceholder('Select Ticket Type')
                 .addOptions([
+                    // TODO get API departments
                     { label: 'Technical Support', value: 'technical_support' },
                     { label: 'Billing Inquiry', value: 'billing_inquiry' },
                 ]));

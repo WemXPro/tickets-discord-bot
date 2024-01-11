@@ -3,7 +3,8 @@ const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = re
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('ticket-button')
-        .setDescription('Create a new support ticket button form'),
+        .setDescription('Create a new support ticket button form')
+        .setDefaultMemberPermissions(8),
     async execute(interaction) {
         const row = new ActionRowBuilder()
             .addComponents(
